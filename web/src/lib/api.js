@@ -1,15 +1,30 @@
-function getBase() {
+let cachedBase = null;
+
+async function discoverBase() {
+  if (typeof window !== 'undefined' && window.Capacitor?.isNative) {
+    const candidates = ['http://122.178.15.98:70', 'http://192.168.1.2:70', 'http://localhost:70'];
+    for (const url of candidates) {
+      try {
+        const res = await fetch(`${url}/api/auth/me`, { method: 'HEAD', signal: AbortSignal.timeout(3000) });
+        if (res.ok || res.status === 401) return url;
+      } catch {}
+    }
+    return candidates[0];
+  }
   if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
     return 'http://localhost:70';
   }
   return `${window.location.protocol}//${window.location.host}`;
 }
 
-const BASE = getBase();
-const API = `${BASE}/api`;
+async function getBase() {
+  if (!cachedBase) cachedBase = await discoverBase();
+  return cachedBase;
+}
 
 export async function request(path, options = {}) {
-  const res = await fetch(`${API}${path}`, {
+  const base = await getBase();
+  const res = await fetch(`${base}/api${path}`, {
     credentials: 'include',
     headers: { 'Content-Type': 'application/json', ...options.headers },
     ...options
@@ -17,6 +32,11 @@ export async function request(path, options = {}) {
   const data = await res.json();
   if (!res.ok) throw new Error(data.error || 'Request failed');
   return data;
+}
+
+export async function streamUrl(id) {
+  const base = await getBase();
+  return `${base}/api/stream/${id}`;
 }
 
 export const auth = {
@@ -38,7 +58,4 @@ export const search = {
   songInfo: (id) => request(`/search/song/${id}`)
 };
 
-export const stream = {
-  url: (id) => `${BASE}/api/stream/${id}`,
-  info: (id) => request(`/stream/${id}/info`)
-};
+

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useCallback } from 'react';
 import { usePlayerStore } from '../store/playerStore';
-import { stream } from '../lib/api';
+import { streamUrl } from '../lib/api';
 
 export default function AudioProvider({ children }) {
   const audioRef = useRef(null);
@@ -21,8 +21,7 @@ export default function AudioProvider({ children }) {
 
     setProgress(0);
     setDuration(0);
-    audio.src = stream.url(currentSong.id);
-    audio.load();
+    streamUrl(currentSong.id).then(url => { audio.src = url; audio.load(); });
   }, [currentSong?.id]);
 
   useEffect(() => {
