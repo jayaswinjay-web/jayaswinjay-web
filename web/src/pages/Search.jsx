@@ -1,16 +1,19 @@
 import { useState, useEffect, useRef } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { search as searchApi } from '../lib/api';
 import SongCard from '../components/SongCard';
 import { SearchSkeleton } from '../components/Skeleton';
 
 export default function Search() {
-  const [query, setQuery] = useState('');
+  const [searchParams] = useSearchParams();
+  const [query, setQuery] = useState(searchParams.get('q') || '');
   const [results, setResults] = useState([]);
   const [nextPage, setNextPage] = useState(null);
   const [loading, setLoading] = useState(false);
   const [suggestions, setSuggestions] = useState([]);
   const [searched, setSearched] = useState(false);
   const debounceRef = useRef(null);
+  const initialSearchDone = useRef(false);
 
   useEffect(() => {
     if (!query.trim()) { setSuggestions([]); return; }
@@ -23,6 +26,14 @@ export default function Search() {
     }, 300);
     return () => clearTimeout(debounceRef.current);
   }, [query]);
+
+  useEffect(() => {
+    const q = searchParams.get('q');
+    if (q && !initialSearchDone.current) {
+      initialSearchDone.current = true;
+      doSearch(q);
+    }
+  }, []);
 
   const doSearch = async (q, next) => {
     setLoading(true);
