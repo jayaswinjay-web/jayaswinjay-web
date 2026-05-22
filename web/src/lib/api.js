@@ -1,15 +1,6 @@
-let cachedBase = null;
-
-async function discoverBase() {
+function getBase() {
   if (typeof window !== 'undefined' && window.Capacitor?.isNative) {
-    const candidates = ['http://122.178.15.98:70', 'http://192.168.1.2:70', 'http://localhost:70'];
-    for (const url of candidates) {
-      try {
-        const res = await fetch(`${url}/api/auth/me`, { method: 'HEAD', signal: AbortSignal.timeout(3000) });
-        if (res.ok || res.status === 401) return url;
-      } catch {}
-    }
-    return candidates[0];
+    return 'http://122.178.15.98:70';
   }
   if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
     return 'http://localhost:70';
@@ -17,14 +8,11 @@ async function discoverBase() {
   return `${window.location.protocol}//${window.location.host}`;
 }
 
-async function getBase() {
-  if (!cachedBase) cachedBase = await discoverBase();
-  return cachedBase;
-}
+const BASE = getBase();
+const API = `${BASE}/api`;
 
 export async function request(path, options = {}) {
-  const base = await getBase();
-  const res = await fetch(`${base}/api${path}`, {
+  const res = await fetch(`${API}${path}`, {
     credentials: 'include',
     headers: { 'Content-Type': 'application/json', ...options.headers },
     ...options
@@ -34,9 +22,8 @@ export async function request(path, options = {}) {
   return data;
 }
 
-export async function streamUrl(id) {
-  const base = await getBase();
-  return `${base}/api/stream/${id}`;
+export function streamUrl(id) {
+  return `${BASE}/api/stream/${id}`;
 }
 
 export const auth = {

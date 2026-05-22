@@ -21,7 +21,7 @@ export default function AudioProvider({ children }) {
 
     setProgress(0);
     setDuration(0);
-    streamUrl(currentSong.id).then(url => { audio.src = url; audio.load(); });
+    audio.src = streamUrl(currentSong.id); audio.load();
   }, [currentSong?.id]);
 
   useEffect(() => {
