@@ -1,0 +1,9 @@
+{
+  "appId": "com.jayvibez.app",
+  "appName": "JAY VIBEZ",
+  "webDir": "dist",
+  "server": {
+    "androidScheme": "http",
+    "cleartext": true
+  }
+}

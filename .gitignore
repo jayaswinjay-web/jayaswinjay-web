@@ -1,0 +1,14 @@
+node_modules/
+dist/
+android/.gradle/
+android/build/
+android/app/build/
+android/local.properties
+*.apk
+*.zip
+*.log
+server/data/users.json
+server/package-lock.json
+web/package-lock.json
+C/
+temp/
