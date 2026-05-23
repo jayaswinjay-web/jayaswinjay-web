@@ -1,6 +1,6 @@
 function getBase() {
   if (typeof window !== 'undefined' && window.Capacitor?.isNative) {
-    return 'http://122.178.15.98:70';
+    return 'http://122.178.12.110:70';
   }
   if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
     return 'http://localhost:70';
